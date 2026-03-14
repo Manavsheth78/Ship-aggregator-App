@@ -10,7 +10,7 @@ export const trackRouter = Router();
 
 trackRouter.get("/:carrier/:trackingId", authMiddleware, async (req, res) => {
   try {
-    console.log("AUTH HEADER:", req.headers.authorization);
+    // console.log("AUTH HEADER:", req.headers.authorization);
     const { carrier, trackingId } = req.params;
     const userId = req.userId;
 
