@@ -1,12 +1,18 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:3002",
+  baseURL:
+    import.meta.env.DEV && !import.meta.env.PROD
+      ? "http://localhost:3002/api"
+      : "/api",
   headers: { "Content-Type": "application/json" },
 });
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
+
+  console.log("token sent", token);
+
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });

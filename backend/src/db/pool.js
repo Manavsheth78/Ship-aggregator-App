@@ -5,7 +5,8 @@ dotenv.config();
 const { Pool } = pg;
 
 export const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgresql://postgres:root@localhost:5432/shipment_monitoring",
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });

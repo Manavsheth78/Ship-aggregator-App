@@ -13,6 +13,15 @@ import { startBackgroundWorker } from "./workers/shipmentWorker.js";
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not set");
+}
+
+console.log("FedEx env vars:", {
+  FEDEX_CLIENT_ID: !!process.env.FEDEX_CLIENT_ID,
+  FEDEX_CLIENT_SECRET: !!process.env.FEDEX_CLIENT_SECRET,
+});
+
 const app = express();
 const PORT = process.env.PORT || 3002;
 
@@ -27,9 +36,9 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/auth", authRouter);
-app.use("/shipments", shipmentRouter);
-app.use("/track", trackRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/shipments", shipmentRouter);
+app.use("/api/track", trackRouter);
 
 app.get("/health", (_, res) => res.json({ status: "ok" }));
 

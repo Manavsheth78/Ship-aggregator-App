@@ -9,9 +9,10 @@ import {
 export const trackRouter = Router();
 
 trackRouter.get("/:carrier/:trackingId", authMiddleware, async (req, res) => {
+  console.log("TRACK ROUTE HIT:", req.params);
   try {
-    // console.log("AUTH HEADER:", req.headers.authorization);
-    const { carrier, trackingId } = req.params;
+    const carrier = req.params.carrier.toUpperCase();
+    const { trackingId } = req.params;
     const userId = req.userId;
 
     const dbShip = await pool.query(
@@ -45,7 +46,14 @@ trackRouter.get("/:carrier/:trackingId", authMiddleware, async (req, res) => {
     }
 
     // if we didn't find a local record make sure the number looks valid
+
+    console.log("Carrier received:", carrier);
+    console.log("Tracking ID received:", trackingId);
+
+    console.log("Running validation...");
+
     const valid = await validateTrackingNumber(carrier, trackingId);
+    console.log("Validation result:", valid);
     if (!valid) {
       return res
         .status(400)
