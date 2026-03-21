@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { track } from "../api";
+import { shipments } from "../api";
+
 import StatusBadge from "../components/StatusBadge";
 
 export default function TrackShipment() {
@@ -10,6 +12,7 @@ export default function TrackShipment() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [added, setAdded] = useState(false);
 
   // basic client-side regexes just to give quick feedback; the server
   // will still perform proper validation against the carrier APIs.
@@ -34,6 +37,23 @@ export default function TrackShipment() {
     }
     return ""; // unknown carrier
   }
+  const handleAddToDashboard = async () => {
+    try {
+      await shipments.createFromTracking({
+        trackingNumber: result.trackingNumber,
+        carrier: result.carrier,
+        status: result.status,
+        location: result.location,
+        events: result.events,
+      });
+
+      setAdded(true);
+      alert("Added to dashboard");
+    } catch (err) {
+      console.log(err);
+      alert("Failed to add to dashboard");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -167,7 +187,7 @@ export default function TrackShipment() {
               )}
             </div>
           </div>
-          {result.events && result.events.length > 0 && (
+          {/* {result.events && result.events.length > 0 && (
             <div style={{ marginTop: 16 }}>
               <h4 style={{ margin: "0 0 12px 0", fontSize: 14, color: "#666" }}>
                 Timeline
@@ -197,6 +217,62 @@ export default function TrackShipment() {
                 ))}
               </div>
             </div>
+          )} */}
+          {result.events && result.events.length > 0 && (
+            <>
+              <div style={{ marginTop: 16 }}>
+                <h4
+                  style={{ margin: "0 0 12px 0", fontSize: 14, color: "#666" }}
+                >
+                  Timeline
+                </h4>
+
+                <div
+                  style={{
+                    paddingLeft: 24,
+                    borderLeft: "2px solid #e0e0e0",
+                    marginLeft: 8,
+                  }}
+                >
+                  {result.events.map((e) => (
+                    <div key={e.id || e.timestamp} style={{ marginBottom: 12 }}>
+                      <strong>{e.status}</strong>
+
+                      {e.location && (
+                        <span style={{ color: "#666", marginLeft: 8 }}>
+                          {e.location}
+                        </span>
+                      )}
+
+                      <div style={{ fontSize: 12, color: "#999" }}>
+                        {e.timestamp
+                          ? new Date(e.timestamp).toLocaleString()
+                          : e.created_at &&
+                            new Date(e.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleAddToDashboard}
+                style={{
+                  marginTop: 16,
+                  padding: 12,
+                  width: "100%",
+                  background: "#1B5E20",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+                disabled={added}
+              >
+                {added ? "Added to Dashboard" : "Add to Dashboard"}
+              </button>
+            </>
           )}
         </div>
       )}

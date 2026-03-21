@@ -5,7 +5,6 @@ import { authMiddleware } from "../middleware/auth.js";
 import { computeRoute } from "../services/regionService.js";
 import { sendStatusChangeEmail } from "../services/emailService.js";
 import { generateShippingLabel } from "../services/pdfService.js";
-import { validateTrackingNumber } from "../services/carrierService.js";
 
 export const shipmentRouter = Router();
 shipmentRouter.use(authMiddleware);
@@ -66,42 +65,78 @@ function validateShipmentPayload(body) {
   return { valid: true };
 }
 
+shipmentRouter.post("/from-tracking", async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { trackingNumber, carrier, events, status } = req.body;
+
+    if (!trackingNumber || !carrier) {
+      return res.status(400).json({ error: "Missing tracking data" });
+    }
+
+    let shipment = await pool.query(
+      "SELECT * FROM shipments WHERE tracking_number = $1 AND user_id = $2",
+      [trackingNumber, userId],
+    );
+
+    if (shipment.rows.length === 0) {
+      // ✅ INSERT (same as your old logic)
+      shipment = await pool.query(
+        `INSERT INTO shipments
+         (
+           tracking_number, carrier, status, user_id, mode,
+           sender_name, sender_address, sender_city, sender_state,
+           receiver_name, receiver_address, receiver_city, receiver_state,
+           package_weight, package_length, package_width, package_height, package_type
+         )
+         VALUES (
+           $1, $2, $3, $4, 'REAL',
+           'Unknown', 'Unknown', 'Unknown', 'NA',
+           'Unknown', 'Unknown', 'Unknown', 'NA',
+           0, 0, 0, 0, 'API'
+         )
+         RETURNING *`,
+        [trackingNumber, carrier, status, userId],
+      );
+    } else {
+      // ✅ UPDATE (THIS WAS MISSING BEFORE)
+      await pool.query(
+        `UPDATE shipments
+         SET status = $1
+         WHERE tracking_number = $2 AND user_id = $3`,
+        [status, trackingNumber, userId],
+      );
+    }
+
+    const shipmentId = shipment.rows[0].id;
+
+    // ✅ SAME AS YOUR OLD CODE (KEEP THIS)
+    await pool.query("DELETE FROM shipment_events WHERE shipment_id = $1", [
+      shipmentId,
+    ]);
+
+    for (const e of events || []) {
+      await pool.query(
+        `INSERT INTO shipment_events (shipment_id, status, description, location)
+         VALUES ($1, $2, $3, $4)`,
+        [shipmentId, e.status, e.timestamp, e.location],
+      );
+    }
+
+    res.json({ success: true, shipmentId });
+  } catch (e) {
+    console.error("from-tracking error:", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 shipmentRouter.post("/", async (req, res) => {
   try {
-    const { mode, carrier, trackingId } = req.body;
     const userId = req.userId;
 
     const validation = validateShipmentPayload(req.body);
     if (!validation.valid) {
       return res.status(400).json({ error: validation.error });
-    }
-
-    const modeValue =
-      mode && String(mode).toUpperCase() === "REAL" ? "REAL" : "DEMO";
-
-    if (modeValue === "REAL" && (!carrier || !trackingId)) {
-      return res
-        .status(400)
-        .json({ error: "carrier and trackingId required for REAL mode" });
-    }
-
-    if (modeValue === "REAL") {
-      try {
-        const valid = await validateTrackingNumber(carrier, trackingId);
-        if (!valid) {
-          return res
-            .status(400)
-            .json({ error: "Invalid tracking number for specified carrier" });
-        }
-      } catch (validationError) {
-        console.error("Tracking validation failed:", validationError.message);
-        return res
-          .status(400)
-          .json({
-            error:
-              "Cannot validate tracking number. Please check credentials or use DEMO mode.",
-          });
-      }
     }
 
     const payload = {
@@ -118,45 +153,12 @@ shipmentRouter.post("/", async (req, res) => {
       package_width: parseFloat(req.body.packageWidth),
       package_height: parseFloat(req.body.packageHeight),
       package_type: String(req.body.packageType).trim(),
-      carrier: carrier ? String(carrier).trim() : "DEMO",
+      carrier: "DEMO",
     };
 
     let shipment;
 
-    if (modeValue === "REAL") {
-      const result = await pool.query(
-        `INSERT INTO shipments (user_id, tracking_number, carrier, mode, status,
-         sender_name, sender_address, sender_city, sender_state,
-         receiver_name, receiver_address, receiver_city, receiver_state,
-         package_weight, package_length, package_width, package_height, package_type)
-         VALUES ($1, $2, $3, 'REAL', 'Label Created',
-         $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-         RETURNING *`,
-        [
-          userId,
-          String(trackingId),
-          payload.carrier,
-          payload.sender_name,
-          payload.sender_address,
-          payload.sender_city,
-          payload.sender_state,
-          payload.receiver_name,
-          payload.receiver_address,
-          payload.receiver_city,
-          payload.receiver_state,
-          payload.package_weight,
-          payload.package_length,
-          payload.package_width,
-          payload.package_height,
-          payload.package_type,
-        ],
-      );
-      shipment = result.rows[0];
-      await pool.query(
-        "INSERT INTO shipment_events (shipment_id, status, description, location) VALUES ($1, $2, $3, $4)",
-        [shipment.id, "Label Created", "Tracking number registered", "Origin"],
-      );
-    } else {
+    {
       const route = await computeRoute(
         payload.sender_state,
         payload.receiver_state,

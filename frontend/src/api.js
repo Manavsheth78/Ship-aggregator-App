@@ -38,6 +38,7 @@ export const shipments = {
   list: () => API.get("/shipments"),
   get: (id) => API.get(`/shipments/${id}`),
   create: (data) => API.post("/shipments", data),
+  createFromTracking: (data) => API.post("/shipments/from-tracking", data),
 };
 
 export const track = {
