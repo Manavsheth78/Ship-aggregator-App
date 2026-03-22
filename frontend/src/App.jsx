@@ -4,7 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateShipment from './pages/CreateShipment';
-import ShipmentDetail from './pages/ShipmentDetail';
+import Shipments from './pages/Shipments';
 import TrackShipment from './pages/TrackShipment';
 
 function ProtectedRoute({ children }) {
@@ -28,7 +28,8 @@ export default function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="create" element={<CreateShipment />} />
-        <Route path="shipments/:id" element={<ShipmentDetail />} />
+        <Route path="shipments" element={<Shipments />} />
+        <Route path="shipments/:id" element={<Shipments />} />
         <Route path="track" element={<TrackShipment />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

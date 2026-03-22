@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../api';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Package } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -26,47 +30,46 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '80px auto', padding: 24 }}>
-      <div style={{ background: '#1B5E20', color: 'white', padding: 16, borderRadius: 8, marginBottom: 24, textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '1.25rem' }}>Smart Shipment Monitoring</h1>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#1B5E20] mb-4">
+            <Package size={28} className="text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">ShipHub</h1>
+          <p className="text-gray-500 text-sm mt-1">Smart Shipment Monitoring</p>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Welcome back</CardTitle>
+            <CardDescription>Sign in to your account to continue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Email</label>
+                <Input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Password</label>
+                <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              </div>
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? 'Signing in...' : 'Sign in'}
+              </Button>
+              <p className="text-center text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-[#1B5E20] font-medium hover:underline">Register</Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <h2 style={{ margin: 0 }}>Login</h2>
-        {error && <div style={{ color: '#c62828', fontSize: 14 }}>{error}</div>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ padding: 12, border: '1px solid #e0e0e0', borderRadius: 4 }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ padding: 12, border: '1px solid #e0e0e0', borderRadius: 4 }}
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: 12,
-            background: '#1B5E20',
-            color: 'white',
-            border: 'none',
-            borderRadius: 4,
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        <p style={{ margin: 0, fontSize: 14, color: '#666' }}>
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
-      </form>
     </div>
   );
 }

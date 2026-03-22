@@ -105,8 +105,17 @@ export default function CreateShipment() {
   };
 
   return (
-    <div>
-      <h1 style={{ marginBottom: 24 }}>Create Shipment</h1>
+    <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
+      <h1
+        style={{
+          marginBottom: 24,
+          fontSize: 24,
+          fontWeight: 600,
+          margin: "0 auto",
+        }}
+      >
+        Create Shipment
+      </h1>
       <form
         onSubmit={handleSubmit}
         style={{

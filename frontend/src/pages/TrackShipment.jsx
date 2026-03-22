@@ -76,7 +76,7 @@ export default function TrackShipment() {
   };
 
   return (
-    <div>
+    <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
       <h1 style={{ marginBottom: 24 }}>Track Shipment</h1>
       <form
         onSubmit={handleSubmit}

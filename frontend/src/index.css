@@ -1,7 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --primary: #1B5E20;
-  --primary-light: #2E7D32;
-  --primary-dark: #0D3D12;
+  --primary: #1b5e20;
+  --primary-light: #2e7d32;
+  --primary-dark: #0d3d12;
   --bg: #ffffff;
   --text: #1a1a1a;
   --muted: #666;
@@ -14,7 +18,9 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;

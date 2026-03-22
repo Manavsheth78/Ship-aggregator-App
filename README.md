@@ -45,7 +45,7 @@ npm run dev
 
 ### 4. Access
 
-- Frontend: http://localhost:5173
+- Frontend: http://localhost:3000
 - Backend: http://localhost:3002
 
 ## Features

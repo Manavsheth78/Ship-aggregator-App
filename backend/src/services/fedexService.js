@@ -120,7 +120,7 @@ export async function fetchStatus(trackingId) {
     const scanEvents = trackResult.scanEvents || [];
 
     const events = scanEvents.map((e) => ({
-      status: e.eventDescription,
+      status: e.derivedStatus || e.eventDescription,
       timestamp: e.date,
       location: `${e.scanLocation?.city || ""}, ${e.scanLocation?.stateOrProvinceCode || ""}`,
     }));
@@ -128,7 +128,10 @@ export async function fetchStatus(trackingId) {
     return {
       carrier: "FedEx",
       trackingId,
-      status: events[0]?.status || "Unknown",
+      status:
+        trackResult.latestStatusDetail?.statusByLocale ||
+        events[0]?.status ||
+        "Unknown",
       location: events[0]?.location || "",
       events,
     };
