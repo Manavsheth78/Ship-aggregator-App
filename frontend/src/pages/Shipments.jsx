@@ -19,7 +19,7 @@ function ShipmentDetailPanel({ shipment }) {
   const events = shipment.events || [];
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto p-6">
+    <div className="flex flex-col h-full overflow-y-auto p-6 ">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -169,7 +169,7 @@ export default function Shipments() {
 
   return (
     <div
-      className=" flex  md:flex-row gap-4  w-full"
+      className=" flex  md:flex-row gap-4  w-full flex-wrap"
       style={{ height: "calc(100vh - 120px)" }}
     >
       {/* Left panel — shipment list */}
@@ -243,7 +243,10 @@ export default function Shipments() {
       </div>
 
       {/* Right panel — detail */}
-      <div className="flex-1 min-h-96  w-0 bg-white rounded-xl border border-gray-200 ">
+      <div
+        className="flex-1 min-h-96 max-md:w-full
+       bg-white rounded-xl border border-gray-200 "
+      >
         <ShipmentDetailPanel shipment={selected} />
       </div>
     </div>
