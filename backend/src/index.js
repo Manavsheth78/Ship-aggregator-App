@@ -10,6 +10,7 @@ import { authRouter } from "./routes/auth.js";
 import { shipmentRouter } from "./routes/shipments.js";
 import { trackRouter } from "./routes/track.js";
 import { startBackgroundWorker } from "./workers/shipmentWorker.js";
+import compression from "compression";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ console.log("FedEx env vars:", {
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+app.use(compression());
 
 // app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 // app.use(cors());
@@ -48,8 +50,20 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || "Internal Server Error" });
 });
 
+// Block sensitive files - add these BEFORE app.use(express.static(...))
+app.get("/.env", (req, res) => res.status(404).json({ error: "Not found" }));
+app.get("/.git*", (req, res) => res.status(404).json({ error: "Not found" }));
+app.get("/package.json", (req, res) =>
+  res.status(404).json({ error: "Not found" }),
+);
+
 // Serve React build
-app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+app.use(
+  express.static(path.join(__dirname, "../../frontend/dist"), {
+    maxAge: "7d",
+    etag: true,
+  }),
+);
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));

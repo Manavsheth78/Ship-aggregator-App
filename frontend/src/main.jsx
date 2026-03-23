@@ -11,3 +11,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Hide the splash screen once React has mounted
+if (typeof window.__hideLoader === 'function') {
+  window.__hideLoader();
+}
