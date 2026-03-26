@@ -64,7 +64,7 @@ const stateToRegion = {
   TN: "SE",
   AR: "SE",
   LA: "SE",
-  OK: "SE",
+  OK: "SW",
   DC: "SE",
   IL: "MW",
   IN: "MW",

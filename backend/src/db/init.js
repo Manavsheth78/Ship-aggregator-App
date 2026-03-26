@@ -1,4 +1,4 @@
-import { pool } from './pool.js';
+import { pool } from "./pool.js";
 
 const initSQL = `
 -- Users
@@ -144,15 +144,15 @@ async function init() {
   try {
     await client.query(initSQL);
     const checkTable = await client.query(
-      "SELECT column_name FROM information_schema.columns WHERE table_name = 'shipments' AND column_name = 'origin_zip'"
+      "SELECT column_name FROM information_schema.columns WHERE table_name = 'shipments' AND column_name = 'origin_zip'",
     );
     if (checkTable.rows.length > 0) {
-      console.log('Migrating shipments table to v2 schema...');
+      console.log("Migrating shipments table to v2 schema...");
       await client.query(migrationSQL);
-      console.log('Migration complete.');
+      console.log("Migration complete.");
     }
     const checkStateRegion = await client.query(
-      "SELECT 1 FROM information_schema.tables WHERE table_name = 'state_region'"
+      "SELECT 1 FROM information_schema.tables WHERE table_name = 'state_region'",
     );
     if (checkStateRegion.rows.length === 0) {
       await client.query(`
@@ -164,9 +164,9 @@ async function init() {
         CREATE INDEX IF NOT EXISTS idx_state_region_state ON state_region(state_code);
       `);
     }
-    console.log('Database initialized successfully.');
+    console.log("Database initialized successfully.");
   } catch (e) {
-    console.error('Init error:', e.message);
+    console.error("Init error:", e.message);
   } finally {
     client.release();
     await pool.end();
