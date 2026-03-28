@@ -74,9 +74,7 @@ each carrier and export the appropriate environment variables:
 | sandbox URL (`onlinetools.ups.com`) while testing.            |
 | FedEx                                                         | `FEDEX_CLIENT_ID`, `FEDEX_CLIENT_SECRET`      | The sample code                               |
 | obtains an OAuth token and calls `/track/v1/trackingnumbers`. |
-| USPS                                                          | `USPS_USER_ID`                                | The USPS API is XML‑based; the service helper |
-| uses TrackV2.                                                 |
-
+| 
 The implementation lives in `backend/src/services/*Service.js`.
 Each module exports two helpers:
 
